@@ -20,7 +20,16 @@ router.post("/", async (req, res) => {
 // get all posts
 router.get("/", async (req, res) => {
   try {
-    const result = await db.query("select * from posts");
+    const search = req.query.search;
+    let result;
+    if (!search) {
+      result = await db.query("select * from posts");
+      return res.status(200).json(result.rows);
+    }
+    result = await db.query(
+      "select * from posts where title ilike  $1  or content ilike  $1 ",
+      [`%${search}%`],
+    );
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("Database error ", error);
