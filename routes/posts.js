@@ -1,83 +1,25 @@
 import express, { json } from "express";
 const router = express.Router();
-import db from "../db.js";
+import {
+  createPost,
+  deletePost,
+  getAllPosts,
+  getSinglePost,
+  updatePost,
+} from "../controllers/postsController.js";
 
 // create a post
-router.post("/", async (req, res) => {
-  const { title, content, category, tags } = req.body;
-  try {
-    await db.query(
-      "insert into posts(title,content,category,tags) values($1,$2,$3,$4)",
-      [title, content, category, JSON.stringify(tags)],
-    );
-    res.status(201).json({ msg: "Post created successfully" });
-    console.log("added post");
-  } catch (error) {
-    console.log("couldn't add post", error);
-  }
-});
+router.post("/", createPost);
 
 // get all posts
-router.get("/", async (req, res) => {
-  try {
-    const search = req.query.search;
-    let result;
-    if (!search) {
-      result = await db.query("select * from posts");
-      return res.status(200).json(result.rows);
-    }
-    result = await db.query(
-      "select * from posts where title ilike  $1  or content ilike  $1 ",
-      [`%${search}%`],
-    );
-    res.status(200).json(result.rows);
-  } catch (error) {
-    console.log("Database error ", error);
-    res.status(500).json({ msg: "Internal server error" });
-  }
-});
+router.get("/", getAllPosts);
 
 // get single post
-router.get("/:id", async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const result = await db.query("select * from posts where id = $1", [id]);
-    res.status(200).json(result.rows);
-  } catch (error) {
-    console.log("there isn't a post with that id", error);
-    res.status(500).json({ msg: "Internal server error" });
-  }
-});
+router.get("/:id", getSinglePost);
 // delete post
-router.delete("/:id", async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const result = await db.query(`delete from posts where id = $1`[id]);
-    res.status(200).json({ msg: `post  ID ${id} has been deleted` });
-  } catch (error) {
-    console.log("there isn't a post with that id", error);
-    res.status(500).json({ msg: "Internal server error" });
-  }
-});
+router.delete("/:id", deletePost);
 
 // update a post
-router.put("/:id", async (req, res) => {
-  const { title, content, category, tags } = req.body;
-  try {
-    const id = parseInt(req.params.id);
-    console.log("before querying the database");
-    const result = await db.query(
-      "update posts set title = $1,content=$2,category=$3,tags=$4, update_at = now() where id = $5",
-      [title, content, category, JSON.stringify(tags), id],
-    );
-    if (result.rowCount === 0) {
-      return (res.status(404), json({ msg: "Post not found" }));
-    }
-    console.log("after querying the database");
-    res.status(200).json({ msg: "Post updated successfully" });
-  } catch (error) {
-    console.log("couldn't update post", error);
-  }
-});
+router.put("/:id", updatePost);
 
 export default router;
