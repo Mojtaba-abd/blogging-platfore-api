@@ -41,7 +41,7 @@ git clone https://github.com/your-username/blogging-platform-api.git
 cd blogging-platform-api
 ```
 
-### 2. Configer enviorment variables
+### 2.Configer enviorment variables
 
 ```
 PORT=5000
@@ -71,7 +71,7 @@ docker-compose up -d
   - Login email: value of PGADMIN_EMAIL
   - Password: value of PGADMIN_PASSWORD
 
-### 4. install dependencies
+### 4. Install dependencies
 
 ```bash
 npm install
